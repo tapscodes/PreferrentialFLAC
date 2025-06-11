@@ -36,7 +36,7 @@ jobs:
         shell: bash
 
       - name: upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: PrefferentialFLAC-${{ matrix.os == 'ubuntu-latest' && 'Linux' || (matrix.os == 'macos-latest' && 'MacOS' || 'Windows') }}
           path: dist/PrefferentialFLAC-*
