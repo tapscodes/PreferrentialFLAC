@@ -25,6 +25,28 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: download ffmpeg (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          wget https://github.com/BtbN/FFmpeg-Builds/releases/latest/download/ffmpeg-n7.1-latest-linux64-gpl-7.1.tar.xz
+          tar xf ffmpeg-n7.1-latest-linux64-gpl-7.1.tar.xz
+          cp ffmpeg-n7.1-latest-linux64-gpl-7.1/bin/ffmpeg .
+
+      - name: download ffmpeg (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          curl --fail -Lo ffmpeg.zip https://evermeet.cx/ffmpeg/getrelease/zip
+          unzip ffmpeg.zip
+          mv ffmpeg ffmpeg-macos
+
+      - name: download ffmpeg (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          curl -LO https://github.com/BtbN/FFmpeg-Builds/releases/latest/download/ffmpeg-n7.1-latest-win64-gpl-7.1.zip
+          unzip ffmpeg-n7.1-latest-win64-gpl-7.1.zip
+          cp ffmpeg-n7.1-latest-win64-gpl-7.1/bin/ffmpeg.exe .
+
       - name: install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -32,7 +54,13 @@ jobs:
 
       - name: build executable
         run: |
-          pyinstaller --onefile --name PrefferentialFLAC-${{ matrix.os == 'ubuntu-latest' && 'Linux' || (matrix.os == 'macos-latest' && 'MacOS' || 'Windows') }} PreferrentialFLAC.py
+          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+            pyinstaller --onefile --add-binary "ffmpeg:." --name PrefferentialFLAC-Linux PreferrentialFLAC.py
+          elif [ "${{ matrix.os }}" = "macos-latest" ]; then
+            pyinstaller --onefile --add-binary "ffmpeg-macos:ffmpeg" --name PrefferentialFLAC-MacOS PreferrentialFLAC.py
+          else
+            pyinstaller --onefile --add-binary "ffmpeg.exe;." --name PrefferentialFLAC-Windows PreferrentialFLAC.py
+          fi
         shell: bash
 
       - name: upload artifact

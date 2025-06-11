@@ -19,11 +19,23 @@ class ConvertWorker(QObject):
     def run(self):
         #calculate total number of files
         total = len(self.files)
+        #determine ffmpeg path (bundled or system)
+        if hasattr(sys, "_MEIPASS"):
+            #pyinstaller bundle: use the included ffmpeg binary
+            if sys.platform == "win32":
+                ffmpeg_path = os.path.join(sys._MEIPASS, "ffmpeg.exe")
+            elif sys.platform == "darwin":
+                ffmpeg_path = os.path.join(sys._MEIPASS, "ffmpeg")
+            else:
+                ffmpeg_path = os.path.join(sys._MEIPASS, "ffmpeg")
+        else:
+            #fallback to system ffmpeg
+            ffmpeg_path = "ffmpeg"
         for idx, file_path in enumerate(self.files, 1):
             #use .tmp.flac as the temporary file extension for ffmpeg compatibility
             tmp_path = file_path + ".tmp.flac"
             cmd = [
-                "ffmpeg", "-y", "-i", file_path,
+                ffmpeg_path, "-y", "-i", file_path,
                 "-map_metadata", "0",
                 "-sample_fmt", "s16", "-ar", "44100",
                 tmp_path
