@@ -1,0 +1,42 @@
+name: Build with PyInstaller
+
+on:
+  push:
+    paths:
+      - '**.py'
+      - '.github/workflows/pyinstaller.yml'
+  pull_request:
+    paths:
+      - '**.py'
+      - '.github/workflows/pyinstaller.yml'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v3
+
+      - name: set up python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install PySide6 pyinstaller
+
+      - name: build executable
+        run: |
+          pyinstaller --onefile --name PrefferentialFLAC-${{ matrix.os == 'ubuntu-latest' && 'Linux' || (matrix.os == 'macos-latest' && 'MacOS' || 'Windows') }} PreferrentialFLAC.py
+        shell: bash
+
+      - name: upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: PrefferentialFLAC-${{ matrix.os == 'ubuntu-latest' && 'Linux' || (matrix.os == 'macos-latest' && 'MacOS' || 'Windows') }}
+          path: dist/PrefferentialFLAC-*
