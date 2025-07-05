@@ -37,7 +37,7 @@ class ConvertWorker(QObject):
             cmd = [
                 ffmpeg_path, "-y", "-i", file_path,
                 "-map_metadata", "0",
-                "-sample_fmt", "s16", "-ar", "44100",
+                "-sample_fmt", "s16", "-ar", "48000",
                 tmp_path
             ]
             try:
@@ -66,7 +66,7 @@ class FLACConverter(QWidget):
     def __init__(self):
         super().__init__()
         #set window title and size
-        self.setWindowTitle("FLAC to 16bit 44100Hz Converter")
+        self.setWindowTitle("FLAC to 16bit 48000Hz Converter")
         self.resize(500, 350)
         self.selected_files = []
         self.worker_thread = None
